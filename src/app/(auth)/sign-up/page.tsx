@@ -1,19 +1,30 @@
 'use client'
 import { signIn, useSession } from 'next-auth/react'
-import { redirect } from 'next/navigation';
+
+import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react'
 import { toast } from "sonner"
 
 function SignUp() {
   const [isLoading, setIsLoading] = useState(false)
   const { data: session, status } = useSession()
+  const router = useRouter()
+
+  // Add a loading indicator when status is 'loading'
+  if (status === 'loading') {
+    return (
+      <div className='flex items-center justify-center h-screen'>
+        <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900'></div>
+      </div>
+    )
+  }
 
   // Handle redirections based on session status
   useEffect(() => {
     // Only show the toast and redirect once when session is confirmed as not existing
     if (status === 'authenticated') {
       toast.error('You are  logged in')
-      redirect('/')
+      router.push('/')
     }
   }, [status])
 

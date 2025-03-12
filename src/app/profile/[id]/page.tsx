@@ -6,10 +6,12 @@ import { createUser } from '@/actions/creat-User'
 import { Button } from '@/components/ui/button'
 import { useParams } from 'next/navigation'
 import { getUserDetails } from '@/actions/get-User-Details'
+import { useFormStatus } from 'react-dom'
 
 
 function page() {
     const params = useParams();
+    const { pending } = useFormStatus()
     const userId = params.id as string;
     const [userData, setUserData] = useState({
         name: '',
@@ -51,7 +53,7 @@ function page() {
 
             <form action={createUser} className='border p-5 rounded-2xl flex flex-col gap-y-3'>
                 <div >
-                <Input type="hidden" name="userId" value={userId} />
+                    <Input type="hidden" name="userId" value={userId} />
                     <Label htmlFor='name'>Name</Label>
                     <Input
                         name='name'
@@ -78,9 +80,9 @@ function page() {
                         name='leetcode'
                         defaultValue={userData.leetcode}
                         placeholder='Enter your leetcode username'
-                         />
+                    />
                 </div>
-                <Button type="submit">Update</Button>
+                <Button type="submit" disabled={pending}>{pending ? "Updating..." : "Update"}</Button>
             </form>
         </div>
 
