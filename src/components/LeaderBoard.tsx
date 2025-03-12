@@ -5,7 +5,7 @@ import React from 'react'
 async function LeaderBoard() {
 
 const ranks =  await getUserRanking();
-console.log('rankis',ranks);
+
   return (
     <div >
      {

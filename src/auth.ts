@@ -29,8 +29,7 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async session({ session, token }) {
-      console.log("session", session);
-      console.log("token", token);
+
       if (session.user && token) {
         session.user.id = token.sub as string;
         session.user.picture = token.picture as string;
