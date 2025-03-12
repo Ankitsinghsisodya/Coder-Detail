@@ -12,7 +12,7 @@ function Header() {
     const session = useSession();
 
     const [imageUrl, setImgageUrl] = useState(null);
-    console.log("session by ankit", session.data.user);
+
     useEffect(() => {
         if (session.data?.user?.image) {
             setImgageUrl(session?.data.user.image);
