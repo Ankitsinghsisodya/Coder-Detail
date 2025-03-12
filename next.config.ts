@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
     // This tells Next.js to continue building even with TypeScript errors
     ignoreBuildErrors: true,
   },
-  optimizeFonts: false,
+
 };
 
 export default nextConfig;
