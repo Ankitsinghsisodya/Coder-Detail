@@ -4,6 +4,7 @@ import { prisma } from "@/lib";
 import axios from "axios";
 
 export const updateUserRating = async () => {
+    console.log("Updating user ratings...");
   const users = await prisma.user.findMany();
   if (!users || users.length === 0) {
     console.log("No users found in database");
@@ -11,13 +12,13 @@ export const updateUserRating = async () => {
   }
   const userRanking = users?.map(async (user) => {
     try {
-      let codeforcesResponse = await axios.get(
-        `https://codeforces.com/api/user.status?handle=${user.codeforces}`
-      );
+        let codeforcesResponse = await axios.get(
+            `https://codeforces.com/api/user.status?handle=${user.codeforces}`
+        );
+        
+       
+        console.log('ankit');
 
-      let leetcodeResponse = await axios.get(
-        `https://alfa-leetcode-api-x0kj.onrender.com/${user.leetcode}/solved`
-      );
       const submissions = codeforcesResponse.data.result;
       const solvedProblemSet = new Set();
       submissions.forEach((submission: any) => {
@@ -29,10 +30,7 @@ export const updateUserRating = async () => {
       });
       const solvedProblems = solvedProblemSet.size;
       let lcRating = 0;
-      let leetcodeRating = await axios.get(
-        `https://alfa-leetcode-api-x0kj.onrender.com/userContestRankingInfo/${user.leetcode}`
-      );
-      lcRating = leetcodeRating.data.data.userContestRanking.rating;
+      
       let cfRating = 0;
       const ratingResponse = await axios.get(
         `https://codeforces.com/api/user.rating?handle=${user.codeforces}`
@@ -47,8 +45,28 @@ export const updateUserRating = async () => {
       }
       lcRating = Math.round(lcRating);
       cfRating = Math.round(cfRating);
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          codeforces: user.codeforces,
+          leetcode: user.leetcode,
+          totalProblemsSolved: solvedProblems,
+          codeforcesProblemsSolved: solvedProblems,
+          codeforcesRating: cfRating,
+        },
+      });
+      console.log('ayush');
+      let leetcodeRating = await axios.get(
+        `https://alfa-leetcode-api-x0kj.onrender.com/userContestRankingInfo/${user.leetcode}`
+      );
+      let leetcodeResponse = await axios.get(
+        `https://alfa-leetcode-api-x0kj.onrender.com/${user.leetcode}/solved`
+    );
+      lcRating = leetcodeRating.data.data.userContestRanking.rating;
       let totalSolvedProblems = solvedProblems + leetcodeResponse.data.solvedProblem;
-
+      console.log(`${user.name}`, 'lcRating:', lcRating);
       const updatedUser = await prisma.user.update({
         where: {
           id: user.id,
