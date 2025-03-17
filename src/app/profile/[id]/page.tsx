@@ -7,9 +7,27 @@ import { Button } from '@/components/ui/button'
 import { useParams } from 'next/navigation'
 import { getUserDetails } from '@/actions/get-User-Details'
 import { useFormStatus } from 'react-dom'
+import { toast } from 'sonner'
+import { useRouter } from 'next/router'
 
 
 function page() {
+    const router = useRouter();
+    // ...existing state and params...
+
+    const handleFormAction = async (formData: FormData) => {
+        try {
+            const response = await createUser(formData);
+            if (response.status === 200) {
+                toast.success('Profile updated successfully!');
+                router.push('/'); // Redirect to home page
+            } else {
+                toast.error(response.error || 'Failed to update profile');
+            }
+        } catch (error) {
+            toast.error('Something went wrong');
+        }
+    }
     const params = useParams();
     const { pending } = useFormStatus()
     const userId = params.id as string;
@@ -51,7 +69,7 @@ function page() {
     return (
         <div className='container mx-auto w-1/2 flex justify-center items-center h-screen'>
 
-            <form action={createUser} className='border p-5 rounded-2xl flex flex-col gap-y-3'>
+            <form action={handleFormAction} className='border p-5 rounded-2xl flex flex-col gap-y-3'>
                 <div >
                     <Input type="hidden" name="userId" value={userId} />
                     <Label htmlFor='name'>Name</Label>
