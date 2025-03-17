@@ -4,10 +4,10 @@ import { prisma } from "@/lib";
 import axios from "axios";
 
 export const updateUserRating = async () => {
-    console.log("Updating user ratings...");
+
   const users = await prisma.user.findMany();
   if (!users || users.length === 0) {
-    console.log("No users found in database");
+
     return [];
   }
   const userRanking = users?.map(async (user) => {
@@ -16,8 +16,6 @@ export const updateUserRating = async () => {
             `https://codeforces.com/api/user.status?handle=${user.codeforces}`
         );
         
-       
-        console.log('ankit');
 
       const submissions = codeforcesResponse.data.result;
       const solvedProblemSet = new Set();
@@ -57,10 +55,11 @@ export const updateUserRating = async () => {
           codeforcesRating: cfRating,
         },
       });
-      console.log('ayush');
+
       let leetcodeRating = await axios.get(
         `https://alfa-leetcode-api-x0kj.onrender.com/userContestRankingInfo/${user.leetcode}`
       );
+
       let leetcodeResponse = await axios.get(
         `https://alfa-leetcode-api-x0kj.onrender.com/${user.leetcode}/solved`
     );
@@ -72,10 +71,7 @@ export const updateUserRating = async () => {
           id: user.id,
         },
         data: {
-          codeforces: user.codeforces,
-          leetcode: user.leetcode,
           totalProblemsSolved: totalSolvedProblems,
-          codeforcesProblemsSolved: solvedProblems,
           leetcodeProblemsSolved: leetcodeResponse.data.solvedProblem,
           leetcodeRating: lcRating,
           codeforcesRating: cfRating,

@@ -72,16 +72,6 @@ export const createUser = async (formData: FormData) => {
                     });
                     console.log("User created successfully");
                 }
-            } else {
-                console.log("Creating new user");
-                user = await prisma.user.create({
-                    data: {
-                        name,
-                        codeforces: codeforces || null,
-                        leetcode: leetcode || null
-                    }
-                });
-                console.log("User created successfully");
             }
 
             // Redirect to the user's profile
@@ -91,8 +81,8 @@ export const createUser = async (formData: FormData) => {
         }
         finally {
             if (user) {
-                redirect(`/profile/${user.id}`);
                 updateUserRating();
+                redirect(`/`);
             }
 
         }
