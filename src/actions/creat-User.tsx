@@ -61,9 +61,9 @@ export const createUser = async (formData: FormData) => {
             });
 
         if (user !== null) {
-            console.log(`Updating existing user with ID: ${userId}`);
+
             // Update existing user
-            console.log("User found:", user);
+
             user = await prisma.user.update({
                 where: { id: userId },
                 data: {
@@ -74,8 +74,7 @@ export const createUser = async (formData: FormData) => {
             });
             console.log("User updated successfully:", user);
         } else {
-            console.log("Creating new user");
-            console.log("user brought", user);
+
             // Create new user
             user = await prisma.user.create({
                 data: {
