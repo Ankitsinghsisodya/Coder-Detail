@@ -94,9 +94,6 @@ export const createUser = async (formData: FormData) => {
     } catch (error) {
         console.error("Error in createUser:", error);
         // Return the error for client-side handling
-        return {
-            error: true,
-            message: error instanceof Error ? error.message : "An unknown error occurred"
-        };
+       
     }
 };
