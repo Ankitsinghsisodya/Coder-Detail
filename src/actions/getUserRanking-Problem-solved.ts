@@ -18,7 +18,7 @@ export const getUserRanking = async () => {
         );
 
         let leetcodeResponse = await axios.get(
-          `https://alfa-leetcode-api.onrender.com/${user.leetcode}/solved`
+          `https://alfa-leetcode-api-x0kj.onrender.com/${user.leetcode}/solved`
         );
         const submissions = codeforcesResponse.data.result;
         const solvedProblemSet = new Set();
