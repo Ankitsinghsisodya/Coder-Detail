@@ -2,6 +2,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 // import {auth} from "@/auth"; // Adjust the path
@@ -11,13 +12,22 @@ import { Button } from './ui/button'
 function Header() {
     const session = useSession();
 
-    const [imageUrl, setImgageUrl] = useState(null);
+    const [imageUrl, setImgageUrl] = useState<string | null>(null);
+
+    const router = useRouter();
 
     useEffect(() => {
+        console.log('Session:', session);
+        if (session.data === null) {
+            router.push('/sign-up');
+        }
+
         if (session.data?.user?.image) {
             setImgageUrl(session?.data.user.image);
         }
-    }, [])
+    }, []);
+
+
     return (
         <div className='w-full bg-white'>
             <nav className='w-screen mx-auto flex justify-between items-center bg-gray-800 p-4 text-white'>

@@ -1,7 +1,7 @@
 'use server'
 
-import axios from "axios";
 import { prisma } from "@/lib";
+import axios from "axios";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -13,8 +13,6 @@ export const createUser = async (formData: FormData) => {
     const codeforces = formData.get('codeforces')?.toString();
     const leetcode = formData.get('leetcode')?.toString();
     const userId = formData.get('userId')?.toString();
-
-    console.log("Processing user data:", { name, codeforces, leetcode, userId });
 
     try {
         // Basic validation
@@ -84,7 +82,6 @@ export const createUser = async (formData: FormData) => {
                 });
                 console.log("User created successfully");
             }
-
             // Refresh data and redirect - THIS PREVENTS THE TYPE ERROR
             revalidatePath('/');
             redirect(`/profile/${user.id}`);
