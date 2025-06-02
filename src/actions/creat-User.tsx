@@ -2,7 +2,6 @@
 
 import { prisma } from "@/lib";
 import axios from "axios";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 // Add this line to the top of the file to disable TypeScript checking
@@ -64,6 +63,7 @@ export const createUser = async (formData: FormData) => {
                     console.log("User not found, creating new user");
                     user = await prisma.user.create({
                         data: {
+                            id: userId,
                             name,
                             codeforces: codeforces || null,
                             leetcode: leetcode || null
@@ -82,12 +82,15 @@ export const createUser = async (formData: FormData) => {
                 });
                 console.log("User created successfully");
             }
-            // Refresh data and redirect - THIS PREVENTS THE TYPE ERROR
-            revalidatePath('/');
-            redirect(`/profile/${user.id}`);
+            // Redirect to the user's profile
         } catch (dbError) {
             console.error("Database error:", dbError);
             throw new Error("Failed to update database");
+        }
+        finally {
+            if (user) {
+                redirect(`/profile/${user.id}`);
+            }
         }
     } catch (error) {
         console.error("Error in createUser:", error);
