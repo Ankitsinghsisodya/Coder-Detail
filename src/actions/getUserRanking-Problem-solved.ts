@@ -30,7 +30,28 @@ export const getUserRanking = async () => {
           }
         });
         const solvedProblems = solvedProblemSet.size;
+        let lcRating = 0;
+        let leetcodeRating = await axios.get(
+          `https://alfa-leetcode-api-x0kj.onrender.com/userContestRankingInfo/${user.leetcode}`
+        );
+        lcRating = leetcodeRating.data.data.userContestRanking.rating;
+        let cfRating = 0;
+        const ratingResponse = await axios.get(
+          `https://codeforces.com/api/user.rating?handle=${user.codeforces}`,
+    
+        );
 
+        if (ratingResponse.data && ratingResponse.data.status === "OK") {
+          const ratingHistory = ratingResponse.data.result;
+          if (ratingHistory && ratingHistory.length > 0) {
+            // Get the last contest's rating
+            cfRating = ratingHistory[ratingHistory.length - 1].newRating;
+          }
+        }
+        lcRating = Math.round(lcRating);
+        cfRating = Math.round(cfRating);
+        console.log(`${user.name}`,'lcRating:', lcRating);
+        console.log('cfRating:', cfRating);
         return {
           id: user.id,
           name: user.name,
@@ -39,6 +60,8 @@ export const getUserRanking = async () => {
           solvedProblems: solvedProblems + leetcodeResponse.data.solvedProblem,
           codeforcesProblemSolved: solvedProblems,
           leetcodeProblemSolved: leetcodeResponse.data.solvedProblem,
+          leetcodeRating: lcRating,
+          codeforcesRating: cfRating,
         };
       } catch (error) {
         console.log(`Error fetching data for user ${user.name}`);
