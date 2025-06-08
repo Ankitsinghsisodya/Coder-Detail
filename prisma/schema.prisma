@@ -24,5 +24,11 @@ model User {
   codeforces String?
   leetcode   String?
 
+  codeforcesRating         Int?
+  leetcodeRating           Int?
+  codeforcesProblemsSolved Int?
+  leetcodeProblemsSolved   Int?
+  totalProblemsSolved      Int?
+
   // Stats (These could be updated periodically)
 }
