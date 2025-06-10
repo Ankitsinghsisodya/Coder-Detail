@@ -10,6 +10,7 @@ function LeaderBoard({ state }: { state: string }) {
   const [loading, setLoading] = useState(true);
   
   // Fetch data on component mount
+
   useEffect(() => {
     async function fetchData() {
       try {
