@@ -1,7 +1,17 @@
 "use server";
 import { prisma } from "@/lib";
 import axios from "axios";
-
+type resultsType = {
+  id: string;
+  name: string;
+  codeforces: string | null;
+  leetcode: string | null;
+  solvedProblems: number;
+  codeforcesProblemSolved: number;
+  leetcodeProblemSolved: number;
+  leetcodeRating: number;
+  codeforcesRating: number;
+};
 export const getUserRanking = async () => {
   try {
     const users = await prisma.user.findMany();
@@ -10,8 +20,8 @@ export const getUserRanking = async () => {
       console.log("No users found in database");
       return [];
     }
-
-    const userRanking = users?.map(async (user) => {
+    let results: resultsType[] = [];
+    for (const user of users) {
       try {
         let codeforcesResponse = await axios.get(
           `https://codeforces.com/api/user.status?handle=${user.codeforces}`
@@ -37,8 +47,7 @@ export const getUserRanking = async () => {
         lcRating = leetcodeRating.data.data.userContestRanking.rating;
         let cfRating = 0;
         const ratingResponse = await axios.get(
-          `https://codeforces.com/api/user.rating?handle=${user.codeforces}`,
-    
+          `https://codeforces.com/api/user.rating?handle=${user.codeforces}`
         );
 
         if (ratingResponse.data && ratingResponse.data.status === "OK") {
@@ -50,9 +59,9 @@ export const getUserRanking = async () => {
         }
         lcRating = Math.round(lcRating);
         cfRating = Math.round(cfRating);
-        console.log(`${user.name}`,'lcRating:', lcRating);
-        console.log('cfRating:', cfRating);
-        return {
+        console.log(`${user.name}`, "lcRating:", lcRating);
+        console.log("cfRating:", cfRating);
+        results.push({
           id: user.id,
           name: user.name,
           codeforces: user.codeforces,
@@ -62,13 +71,12 @@ export const getUserRanking = async () => {
           leetcodeProblemSolved: leetcodeResponse.data.solvedProblem,
           leetcodeRating: lcRating,
           codeforcesRating: cfRating,
-        };
+        });
       } catch (error) {
         console.log(`Error fetching data for user ${user.name}`);
       }
-    });
+    }
 
-    const results = await Promise.all(userRanking);
     const sortedRanking = results.sort(
       (a: any, b: any) => b.solvedProblems - a.solvedProblems
     );
