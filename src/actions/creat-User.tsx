@@ -2,11 +2,8 @@
 
 import { prisma } from "@/lib";
 import axios from "axios";
-import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
 import { updateUserRating } from "./update-User-Rating";
-
-// Add this line to the top of the file to disable TypeScript checking
-// @ts-nocheck
 
 export const createUser = async (formData: FormData) => {
     const name = formData.get('name')?.toString();
@@ -17,40 +14,35 @@ export const createUser = async (formData: FormData) => {
     try {
         // Basic validation
         if (!name) {
-            throw new Error("Name is required");
+            return NextResponse.json(
+                { error: "Name is required" },
+                { status: 400 }
+            );
         }
 
         // Verify Codeforces handle if provided
-        // Skip API calls to avoid rate limits while testing
         if (codeforces && codeforces.trim() !== '') {
-            // Verification is now optional
             try {
-                console.log(`Verifying Codeforces handle: ${codeforces}`);
-                const codeforcesResponse = await axios.get(`https://codeforces.com/api/user.info?handles=${codeforces}`);
+                const codeforcesResponse = await axios.get(
+                    `https://codeforces.com/api/user.info?handles=${codeforces}`
+                );
 
                 if (codeforcesResponse.data.status !== "OK") {
                     console.warn("Codeforces username may not be valid");
-                    // Don't throw, just warn
                 }
-                console.log("Codeforces verification successful");
             } catch (cfError) {
                 console.error("Error verifying Codeforces handle:", cfError);
-                // Don't throw, just log
             }
         }
 
-        // Update or create user in database
         let user;
-
         try {
             if (userId) {
-                // Check if user exists
                 const existingUser = await prisma.user.findUnique({
                     where: { id: userId }
                 });
 
                 if (existingUser) {
-                    console.log(`Updating existing user with ID: ${userId}`);
                     user = await prisma.user.update({
                         where: { id: userId },
                         data: {
@@ -59,9 +51,7 @@ export const createUser = async (formData: FormData) => {
                             leetcode: leetcode || null
                         }
                     });
-                    console.log("User updated successfully");
                 } else {
-                    console.log("User not found, creating new user");
                     user = await prisma.user.create({
                         data: {
                             id: userId,
@@ -70,25 +60,35 @@ export const createUser = async (formData: FormData) => {
                             leetcode: leetcode || null
                         }
                     });
-                    console.log("User created successfully");
                 }
-            }
 
-            // Redirect to the user's profile
+                // Update user ratings
+                await updateUserRating();
+
+                return NextResponse.json({ 
+                    success: true, 
+                    user 
+                }, { 
+                    status: 200 
+                });
+            } else {
+                return NextResponse.json(
+                    { error: "User ID is required" },
+                    { status: 400 }
+                );
+            }
         } catch (dbError) {
             console.error("Database error:", dbError);
-            throw new Error("Failed to update database");
-        }
-        finally {
-            if (user) {
-                updateUserRating();
-                redirect(`/`);
-            }
-
+            return NextResponse.json(
+                { error: "Failed to update database" },
+                { status: 500 }
+            );
         }
     } catch (error) {
         console.error("Error in createUser:", error);
-        // The error will be shown on the form page
-        throw error;
+        return NextResponse.json(
+            { error: "Internal server error" },
+            { status: 500 }
+        );
     }
 };
